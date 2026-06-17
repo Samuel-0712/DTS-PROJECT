@@ -132,6 +132,54 @@ router.patch('/:id/serve', authenticate, authorize('steward', 'manager', 'admin'
     } catch (err) { next(err); }
   });
 
+// GET /api/orders  — list orders filtered by user role/cafeteria
+router.get('/', authenticate, async (req, res, next) => {
+  try {
+    let sql = `
+      SELECT o.order_id, o.placed_at, o.placed_by_user_id, o.served_by_user_id,
+             u.user_name AS student_name, u.cafeteria_id,
+             p.method AS payment_method, p.amount AS payment_amount
+        FROM \`order\` o
+        JOIN \`user\` u ON u.user_id = o.placed_by_user_id
+        LEFT JOIN payment p ON p.order_id = o.order_id
+    `;
+    const params = [];
+    const wheres = [];
+    
+    if (req.user.role === 'student') {
+      wheres.push('o.placed_by_user_id = ?');
+      params.push(req.user.id);
+    } else if (req.user.role === 'steward') {
+      wheres.push('u.cafeteria_id = ?');
+      params.push(req.user.cafeteria_id);
+    } else {
+      if (req.query.cafeteria_id) {
+        wheres.push('u.cafeteria_id = ?');
+        params.push(req.query.cafeteria_id);
+      }
+    }
+    
+    if (wheres.length > 0) {
+      sql += ' WHERE ' + wheres.join(' AND ');
+    }
+    
+    sql += ' ORDER BY o.placed_at DESC';
+    
+    const ordersList = await query(sql, params);
+    
+    for (const order of ordersList) {
+      order.items = await query(
+        `SELECT oi.menu_item_id, m.name, oi.quantity, oi.unit_price
+           FROM order_item oi JOIN menu_item m ON m.menu_item_id = oi.menu_item_id
+          WHERE oi.order_id = ?`,
+        [order.order_id]
+      );
+    }
+    
+    res.json(ordersList);
+  } catch (err) { next(err); }
+});
+
 // GET /api/orders/:id  — full order with items and payment
 router.get('/:id', authenticate, async (req, res, next) => {
   try {

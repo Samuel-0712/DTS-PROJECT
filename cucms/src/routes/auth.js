@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { pool, query } = require('../db');
-const { SECRET } = require('../middleware/auth');
+const { SECRET, authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -86,6 +86,46 @@ router.post('/register', async (req, res, next) => {
   } finally {
     conn.release();
   }
+});
+
+// GET /api/auth/users (admin-only list)
+router.get('/users', authenticate, authorize('admin'), async (req, res, next) => {
+  try {
+    const rows = await query(`
+      SELECT u.user_id, u.user_name, u.user_email, u.user_phone_no, u.role, u.cafeteria_id,
+             c.name AS cafeteria_name,
+             s.matriculation_no,
+             sm.staff_type
+        FROM \`user\` u
+        LEFT JOIN cafeteria c ON c.cafeteria_id = u.cafeteria_id
+        LEFT JOIN student s ON s.user_id = u.user_id
+        LEFT JOIN staff_member sm ON sm.user_id = u.user_id
+       ORDER BY u.user_id DESC
+    `);
+    
+    const formatted = rows.map(r => ({
+      id: r.user_id,
+      username: r.role === 'student' ? r.matriculation_no : (r.user_phone_no || `STAFF_${r.user_id}`),
+      name: r.user_name,
+      email: r.user_email,
+      role: r.role,
+      cafeteria: r.cafeteria_name || (r.cafeteria_id === 0 ? 'Both' : `Cafeteria ${r.cafeteria_id}`),
+      staff_type: r.staff_type
+    }));
+    
+    res.json(formatted);
+  } catch (err) { next(err); }
+});
+
+// DELETE /api/auth/users/:id (admin-only delete)
+router.delete('/users/:id', authenticate, authorize('admin'), async (req, res, next) => {
+  try {
+    const rows = await query('DELETE FROM `user` WHERE user_id = ?', [req.params.id]);
+    if (rows.affectedRows === 0) {
+      return res.status(404).json({ error: 'user not found' });
+    }
+    res.json({ user_id: Number(req.params.id), deleted: true });
+  } catch (err) { next(err); }
 });
 
 module.exports = router;
