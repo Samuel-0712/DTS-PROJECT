@@ -1,0 +1,285 @@
+/* CUCMS CSS Design System */
+
+:root {
+  /* Institutional Color Palette */
+  --color-deep-navy: #0D2B5C;
+  --color-deep-navy-rgb: 13, 43, 92;
+  --color-covenant-blue: #185FA5;
+  --color-covenant-blue-hover: #124c87;
+  --color-gold: #EF9F27;
+  --color-gold-hover: #d3851b;
+  --color-gold-rgb: 239, 159, 39;
+  --color-teal-success: #1D9E75;
+  --color-teal-success-rgb: 29, 158, 117;
+  --color-warm-white: #F7F6F2;
+  --color-error-red: #D32F2F;
+  --color-error-red-rgb: 211, 47, 47;
+  
+  /* Neutral scale */
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --color-card-bg: #FFFFFF;
+  --color-sidebar-bg: #0A1E43;
+  --color-sidebar-text: #E2E8F0;
+  
+  /* Status Color Families */
+  --status-placed-bg: #FEF3C7;
+  --status-placed-text: #D97706;
+  --status-placed-border: #FCD34D;
+  
+  --status-preparing-bg: #DBEAFE;
+  --status-preparing-text: #1D4ED8;
+  --status-preparing-border: #93C5FD;
+  
+  --status-ready-bg: #F3E8FF;
+  --status-ready-text: #7C3AED;
+  --status-ready-border: #C084FC;
+  
+  --status-served-bg: #D1FAE5;
+  --status-served-text: #065F46;
+  --status-served-border: #6EE7B7;
+  
+  --status-cancelled-bg: #FEE2E2;
+  --status-cancelled-text: #991B1B;
+  --status-cancelled-border: #FCA5A5;
+}
+
+/* Global Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+  background-color: var(--color-warm-white);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+/* Typography Scale */
+h1, .h1 {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-deep-navy);
+}
+
+h2, .h2 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-deep-navy);
+}
+
+h3, .h3 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-deep-navy);
+}
+
+.body-text {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.metadata, .label-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Premium Layout styles */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-warm-white);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin-left: 260px; /* Sidebar width */
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+.content-pane {
+  padding: 30px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Base UI Elements */
+.card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--color-covenant-blue);
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-covenant-blue-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-warm-white);
+  border-color: #CBD5E1;
+}
+
+.btn-accent {
+  background: var(--color-gold);
+  color: var(--color-deep-navy);
+  font-weight: 600;
+}
+.btn-accent:hover:not(:disabled) {
+  background: var(--color-gold-hover);
+}
+
+.btn-danger {
+  background: var(--color-error-red);
+  color: white;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #B91C1C;
+}
+
+/* Animations */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-pulse {
+  animation: pulse-soft 2s infinite ease-in-out;
+}
+
+.animate-bounce {
+  animation: bounce-subtle 1.5s infinite ease-in-out;
+}
+
+.animate-slide {
+  animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade {
+  animation: fade-in 0.2s ease forwards;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
