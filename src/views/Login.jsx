@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { useCucms } from '../context/CucmsContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.svg';
-import { KeyRound, Mail, School, ShieldAlert } from 'lucide-react';
+import { KeyRound, Mail, School, ShieldAlert, User } from 'lucide-react';
 
 const Login = () => {
-  const { login } = useCucms();
+  const { login, useRealBackend } = useCucms();
   const navigate = useNavigate();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [cafeteria, setCafeteria] = useState('Cafeteria 1');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!usernameOrEmail || !password) {
+    if (!usernameOrEmail || !password || !name) {
       setError('Please fill in all fields.');
       return;
     }
@@ -25,7 +26,7 @@ const Login = () => {
 
     // Simulate network delay
     setTimeout(() => {
-      const res = login(usernameOrEmail, password, cafeteria);
+      const res = login(usernameOrEmail, password, cafeteria, name);
       setLoading(false);
       if (res.success) {
         const homePaths = {
@@ -41,10 +42,11 @@ const Login = () => {
     }, 600);
   };
 
-  const fillCredentials = (username, pass, caf) => {
+  const fillCredentials = (username, pass, caf, fullName) => {
     setUsernameOrEmail(username);
     setPassword(pass);
     if (caf) setCafeteria(caf);
+    setName(fullName || '');
     setError('');
   };
 
@@ -77,6 +79,27 @@ const Login = () => {
           <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0 }}>
             Sign in to place orders, manage queues, or configure settings.
           </p>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '11px',
+            fontWeight: '600',
+            padding: '4px 10px',
+            borderRadius: '12px',
+            backgroundColor: useRealBackend ? 'rgba(76, 175, 80, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+            color: useRealBackend ? '#2e7d32' : '#b25e00',
+            marginTop: '8px',
+            border: useRealBackend ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid rgba(245, 158, 11, 0.2)'
+          }}>
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: useRealBackend ? '#4caf50' : '#f59e0b'
+            }} />
+            {useRealBackend ? 'Connected to Database Server' : 'Sandbox Simulation Mode'}
+          </div>
         </div>
 
         {/* Form */}
@@ -97,6 +120,31 @@ const Login = () => {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Name Input */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>
+              Full Name (to display)
+            </label>
+            <div style={{ position: 'relative' }}>
+              <User size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--color-text-secondary)' }} />
+              <input
+                type="text"
+                placeholder="e.g. Samuel Adebayo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 12px 12px 38px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  backgroundColor: '#FFFFFF',
+                  color: 'var(--color-text-primary)'
+                }}
+              />
+            </div>
+          </div>
 
           {/* Username/Email Input */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -205,77 +253,163 @@ const Login = () => {
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '8px'
           }}>
-            <button
-              onClick={() => fillCredentials('student@stu.cu.edu.ng', 'password', 'Cafeteria 1')}
-              style={{
-                fontSize: '11px',
-                padding: '8px',
-                borderRadius: '6px',
-                border: '1px solid #CBD5E1',
-                textAlign: 'left',
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <strong style={{ color: 'var(--color-deep-navy)' }}>Student (Samuel)</strong>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>21/1042 · NGN 8.5k</span>
-            </button>
+            {useRealBackend ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('ada@cu.edu', 'password123', 'Cafeteria 1', 'Ada Student')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Student (Ada)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>24CG030001 · DB User</span>
+                </button>
 
-            <button
-              onClick={() => fillCredentials('steward@cu.edu.ng', 'password', 'Cafeteria 1')}
-              style={{
-                fontSize: '11px',
-                padding: '8px',
-                borderRadius: '6px',
-                border: '1px solid #CBD5E1',
-                textAlign: 'left',
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <strong style={{ color: 'var(--color-deep-navy)' }}>Steward (John)</strong>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: CU0123</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('steward1@cu.edu', 'password123', 'Cafeteria 1', 'Steward One')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Steward (One)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>steward1@cu.edu · DB User</span>
+                </button>
 
-            <button
-              onClick={() => fillCredentials('manager@cu.edu.ng', 'password', 'Cafeteria 1')}
-              style={{
-                fontSize: '11px',
-                padding: '8px',
-                borderRadius: '6px',
-                border: '1px solid #CBD5E1',
-                textAlign: 'left',
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <strong style={{ color: 'var(--color-deep-navy)' }}>Manager (Elizabeth)</strong>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: MGR001</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('manager1@cu.edu', 'password123', 'Cafeteria 1', 'Manager One')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Manager (One)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>manager1@cu.edu · DB User</span>
+                </button>
 
-            <button
-              onClick={() => fillCredentials('admin@cu.edu.ng', 'password', 'Cafeteria 1')}
-              style={{
-                fontSize: '11px',
-                padding: '8px',
-                borderRadius: '6px',
-                border: '1px solid #CBD5E1',
-                textAlign: 'left',
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <strong style={{ color: 'var(--color-deep-navy)' }}>Admin (Olumide)</strong>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: ADM001</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('cook@cu.edu', 'password123', 'Cafeteria 2', 'Cook Staff')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Cook (Staff)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>cook@cu.edu · DB User</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('student@stu.cu.edu.ng', 'password', 'Cafeteria 1', 'Samuel Adebayo')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Student (Samuel)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>21/1042 · NGN 8.5k</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('steward@cu.edu.ng', 'password', 'Cafeteria 1', 'John Steward')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Steward (John)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: CU0123</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('manager@cu.edu.ng', 'password', 'Cafeteria 1', 'Elizabeth Manager')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Manager (Elizabeth)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: MGR001</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('admin@cu.edu.ng', 'password', 'Cafeteria 1', 'Olumide Admin')}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    textAlign: 'left',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}
+                >
+                  <strong style={{ color: 'var(--color-deep-navy)' }}>Admin (Olumide)</strong>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '9px' }}>Staff ID: ADM001</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

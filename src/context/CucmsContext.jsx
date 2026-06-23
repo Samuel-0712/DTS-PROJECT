@@ -334,7 +334,7 @@ export const CucmsProvider = ({ children }) => {
   };
 
   // Auth actions
-  const login = async (usernameOrEmail, password, selectedCafeteria) => {
+  const login = async (usernameOrEmail, password, selectedCafeteria, nameInput) => {
     if (useRealBackend) {
       try {
         const res = await apiRequest('/auth/login', 'POST', {
@@ -346,11 +346,15 @@ export const CucmsProvider = ({ children }) => {
         localStorage.setItem('cucms_token', res.token);
         setToken(res.token);
         
+        // Use nameInput's first name, or fallback to database user name
+        const rawName = nameInput || res.user.name || usernameOrEmail;
+        const firstName = rawName.trim().split(' ')[0];
+        
         const loggedUser = {
           id: res.user.id,
           username: usernameOrEmail,
           email: res.user.email || usernameOrEmail,
-          name: res.user.name,
+          name: firstName, // Store first name as username
           role: res.user.role,
           cafeteria: selectedCafeteria,
           walletBalance: 0 // Will load on fetchPrepaid
@@ -371,8 +375,12 @@ export const CucmsProvider = ({ children }) => {
       );
 
       if (user) {
+        const rawName = nameInput || user.name || usernameOrEmail;
+        const firstName = rawName.trim().split(' ')[0];
+
         const loggedUser = {
           ...user,
+          name: firstName, // Store first name
           cafeteria: user.role === 'student' ? selectedCafeteria : (user.cafeteria === 'Both' ? selectedCafeteria : user.cafeteria)
         };
         setCurrentUser(loggedUser);

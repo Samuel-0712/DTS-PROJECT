@@ -15,8 +15,11 @@ router.post('/login', async (req, res, next) => {
       return res.status(400).json({ error: 'email and password are required' });
     }
     const rows = await query(
-      'SELECT user_id, user_name, password_hash, role, cafeteria_id FROM `user` WHERE user_email = ?',
-      [email]
+      `SELECT u.user_id, u.user_name, u.user_email, u.password_hash, u.role, u.cafeteria_id 
+       FROM \`user\` u
+       LEFT JOIN student s ON s.user_id = u.user_id
+       WHERE u.user_email = ? OR u.user_phone_no = ? OR s.matriculation_no = ?`,
+      [email, email, email]
     );
     const user = rows[0];
     // Same generic message whether the email is unknown or the password is wrong.
@@ -30,7 +33,13 @@ router.post('/login', async (req, res, next) => {
     );
     res.json({
       token,
-      user: { id: user.user_id, name: user.user_name, role: user.role, cafeteria_id: user.cafeteria_id },
+      user: { 
+        id: user.user_id, 
+        name: user.user_name, 
+        role: user.role, 
+        cafeteria_id: user.cafeteria_id,
+        email: user.user_email
+      },
     });
   } catch (err) {
     next(err);
